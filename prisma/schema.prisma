@@ -1,0 +1,208 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                          String                        @id @default(ulid())
+  name                        String?
+  email                       String?                       @unique
+  password                    String?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  UserRole                    UserRole[]
+  UserPermission              UserPermission[]
+  UserExtension               UserExtension[]
+  UserExtensionRole           UserExtensionRole[]
+  UserExtensionPermission     UserExtensionPermission[]
+  UserRolePermission          UserRolePermission[]
+  UserRoleExtension           UserRoleExtension[]
+  UserExtensionRolePermission UserExtensionRolePermission[]
+}
+
+model Extension {
+  id                          String                        @id @default(ulid())
+  name                        String
+  version                     String
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  UserExtension               UserExtension[]
+  ExtensionPermission         ExtensionPermission[]
+  ExtensionRole               ExtensionRole[]
+  UserExtensionRole           UserExtensionRole[]
+  UserExtensionPermission     UserExtensionPermission[]
+  UserRoleExtension           UserRoleExtension[]
+  UserExtensionRolePermission UserExtensionRolePermission[]
+}
+
+model Permission {
+  id                          String                        @id @default(ulid())
+  name                        String
+  description                 String?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  RolePermission              RolePermission[]
+  UserPermission              UserPermission[]
+  ExtensionPermission         ExtensionPermission[]
+  UserExtensionPermission     UserExtensionPermission[]
+  UserRolePermission          UserRolePermission[]
+  UserExtensionRolePermission UserExtensionRolePermission[]
+}
+
+model Role {
+  id                          String                        @id @default(ulid())
+  name                        String
+  description                 String?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  UserRole                    UserRole[]
+  RolePermission              RolePermission[]
+  ExtensionRole               ExtensionRole[]
+  UserExtensionRole           UserExtensionRole[]
+  UserRolePermission          UserRolePermission[]
+  UserRoleExtension           UserRoleExtension[]
+  UserExtensionRolePermission UserExtensionRolePermission[]
+}
+
+model UserRole {
+  id        String   @id @default(ulid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+}
+
+model RolePermission {
+  id           String   @id @default(ulid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+}
+
+model UserPermission {
+  id           String   @id @default(ulid())
+  userId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+}
+
+model UserExtension {
+  id          String   @id @default(ulid())
+  userId      String
+  extensionId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  extension Extension @relation(fields: [extensionId], references: [id])
+}
+
+model ExtensionPermission {
+  id           String   @id @default(ulid())
+  extensionId  String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  extension  Extension  @relation(fields: [extensionId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+}
+
+model ExtensionRole {
+  id          String   @id @default(ulid())
+  extensionId String
+  roleId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  extension Extension @relation(fields: [extensionId], references: [id])
+  role      Role      @relation(fields: [roleId], references: [id])
+}
+
+model UserExtensionRole {
+  id          String   @id @default(ulid())
+  userId      String
+  extensionId String
+  roleId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  extension Extension @relation(fields: [extensionId], references: [id])
+  role      Role      @relation(fields: [roleId], references: [id])
+}
+
+model UserExtensionPermission {
+  id           String   @id @default(ulid())
+  userId       String
+  extensionId  String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  extension  Extension  @relation(fields: [extensionId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+}
+
+model UserRolePermission {
+  id           String   @id @default(ulid())
+  userId       String
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+}
+
+model UserRoleExtension {
+  id          String   @id @default(ulid())
+  userId      String
+  roleId      String
+  extensionId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  role      Role      @relation(fields: [roleId], references: [id])
+  extension Extension @relation(fields: [extensionId], references: [id])
+}
+
+model UserExtensionRolePermission {
+  id           String   @id @default(ulid())
+  userId       String
+  extensionId  String
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  extension  Extension  @relation(fields: [extensionId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+}
